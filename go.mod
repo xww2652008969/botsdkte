@@ -1,8 +1,7 @@
 module botsdkte
 
-go 1.20
+go 1.23.6
 
-require (
-	github.com/gorilla/websocket v1.5.3 // indirect
-	github.com/xww2652008969/wbot v0.0.0-20250127110136-5fbc7928b9bf // indirect
-)
+require github.com/xww2652008969/wbot v1.0.0
+
+require github.com/gorilla/websocket v1.5.3 // indirect

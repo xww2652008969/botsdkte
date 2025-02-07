@@ -3,7 +3,7 @@ package pix
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/xww2652008969/wbot/client/Message"
+	"github.com/xww2652008969/wbot/client"
 	"github.com/xww2652008969/wbot/client/utils"
 	"io"
 	"io/ioutil"
@@ -18,6 +18,7 @@ import (
 )
 
 var lastPage map[string]int
+var exclude []string
 
 type Search struct {
 	Error bool `json:"error"`
@@ -291,6 +292,7 @@ var dirPath string
 
 func init() {
 	lastPage = make(map[string]int)
+	exclude = []string{"NovelAI", "ProjectSekai", "fuury", "AIイラスト", "AI生成"}
 	path, _ = os.Getwd()
 	dirPath = filepath.Join(path, "img")
 	err := os.Mkdir(dirPath, 0755) // 0755 是目录的权限
@@ -305,23 +307,11 @@ func init() {
 		fmt.Println("Directory created successfully:", dirPath)
 	}
 }
-func Getpiximg() Message.Event {
-	return func(message Message.Message) {
+func Getpiximg() client.Event {
+	return func(c client.Client, message client.Message) {
 		com := strings.Split(message.RawMessage, " ")
 		fmt.Println(len(com))
 		if len(com) < 2 {
-			return
-		}
-		if len(com) == 3 && (com[2] == "r18" || com[2] == "R18") {
-			if message.UserId == 1271701079 {
-				message.Addreply(message.MessageId)
-				message.AddText("等一下")
-				message.SendGroupMsg(message.GroupId)
-				return
-			}
-			message.Addreply(message.MessageId)
-			message.AddText("你搜牛魔的r18，这里是qq群")
-			message.SendGroupMsg(message.GroupId)
 			return
 		}
 		if com[0] == "搜索图片" {
@@ -336,11 +326,11 @@ func Getpiximg() Message.Event {
 			if err != nil {
 				return
 			}
+			lastPage[com[1]] = a.Body.IllustManga.LastPage
+			fmt.Println(a.Body.IllustManga.LastPage)
 			if len(a.Body.IllustManga.Data) < 1 {
 				return
 			}
-			lastPage[com[1]] = a.Body.IllustManga.LastPage
-			fmt.Println(a.Body.IllustManga.LastPage)
 			i := Randint(0, len(a.Body.IllustManga.Data))
 			list, err := getIllust(a.Body.IllustManga.Data[i].Id)
 			if err != nil {
@@ -350,8 +340,9 @@ func Getpiximg() Message.Event {
 			s := getimg(list.Body.Urls.Original)
 			fmt.Println(s)
 			if len(s) > 5 {
-				message.AddImage(s)
-				message.SendGroupMsg(message.GroupId)
+				c.Addreply(message.MessageId)
+				c.AddImage(s)
+				c.SendGroupMsg(message.GroupId)
 			}
 			return
 		}
@@ -481,6 +472,10 @@ func sr18(key string, r bool, p int) (Search, error) {
 		fmt.Println(err)
 		return s, err
 	}
+	checktag(&s, exclude)
+	if len(s.Body.IllustManga.Data) < 1 {
+		return s, err
+	}
 	return s, nil
 }
 func getIllust(id string) (Illust, error) {
@@ -541,4 +536,25 @@ func getIllust(id string) (Illust, error) {
 	}
 	// 打印响应
 	return l, nil
+}
+func checktag(a *Search, b []string) {
+	tagSet := make(map[string]struct{})
+	for _, v := range b {
+		tagSet[v] = struct{}{}
+	}
+	// 收集要删除的元素
+	var indicesToRemove []int
+	for k1, v1 := range a.Body.IllustManga.Data {
+		for _, v2 := range v1.Tags {
+			if _, exists := tagSet[v2]; exists {
+				indicesToRemove = append(indicesToRemove, k1)
+				break // 找到一个匹配后，跳出内层循环
+			}
+		}
+	}
+	// 删除元素
+	for i := len(indicesToRemove) - 1; i >= 0; i-- {
+		index := indicesToRemove[i]
+		a.Body.IllustManga.Data = append(a.Body.IllustManga.Data[:index], a.Body.IllustManga.Data[index+1:]...)
+	}
 }

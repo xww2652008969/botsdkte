@@ -1,13 +1,5 @@
 package Crazy
 
-import (
-	"fmt"
-	"github.com/xww2652008969/wbot/client/Message"
-	"math/rand"
-	"strings"
-	"time"
-)
-
 var msglist []string
 
 func init() {
@@ -218,35 +210,4 @@ func init() {
 		"╭◜◝ ͡ ◜ ╮ \n(    好想    ) \n╰◟  ͜ ╭◜◝ ͡ ◜ ͡ ◝  ╮\n　 　 (  有人v50   )\n╭◜◝ ͡ ◜◝ ͡  ◜ ╮◞ ╯\n(   和target_name结婚  ) \n╰◟  ͜ ◞ ͜ ◟ ͜ ◞◞╯\n₍ᐢ..ᐢ₎ᐝ ",
 		"╭◜◝ ͡ ◜ ╮ \n(    好想    ) \n╰◟  ͜ ╭◜◝ ͡ ◜ ͡ ◝  ╮\n　 　 ( 和target_name结婚 )\n╭◜◝ ͡ ◜◝ ͡  ◜ ╮◞ ╯\n(   然后吃软饭  ) \n╰◟  ͜ ◞ ͜ ◟ ͜ ◞◞╯\n₍ᐢ..ᐢ₎ᐝ ",
 		"本人不懂二次元，对于你们这种痴迷于虚拟角色的行为，我很是不理解，我感觉应该分清现实和虚拟，他们好看归好看，但终究不是真实存在的，我们要活在现实，而不是盯着纸片人，我的生活很充实，今天是我和target_name的婚礼，大家记得带点彩礼"}
-}
-func Crazy() Message.Event {
-	return func(message Message.Message) {
-		i := Randint(1, 100)
-		if i < 51 && i > 39 {
-			ind := Randint(0, len(msglist))
-			msg := msglist[ind]
-			info, err := message.GetGroupNemberInfo(message.GroupId, message.UserId)
-			if err != nil {
-				fmt.Println(err)
-				return
-			}
-			name := ""
-			if info.Data.Card == "" {
-				name = info.Data.Nickname
-			} else {
-				name = info.Data.Card
-			}
-			mewmsg := strings.ReplaceAll(msg, "target_name", "(@"+name+")")
-			message.Addreply(message.MessageId)
-			message.AddText(mewmsg)
-			message.SendGroupMsg(message.GroupId)
-		}
-	}
-}
-func Randint(min int, max int) int {
-	if max < min {
-		min, max = max, min
-	}
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	return r.Intn(max-min) + min
 }
