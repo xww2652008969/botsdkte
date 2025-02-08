@@ -6,6 +6,7 @@ import (
 	"botsdkte/plu/pet"
 	"botsdkte/plu/todaywaifu"
 	"fmt"
+	"github.com/robfig/cron/v3"
 	"github.com/xww2652008969/wbot/client"
 )
 
@@ -22,7 +23,7 @@ func main() {
 		Clienthttp: botconfig.Gloconfig.Clienthttp,
 	}
 	fmt.Println(config)
-	c, err := client.Create(config)
+	c, err := client.New(config)
 	if err != nil {
 		panic(err)
 	}
@@ -33,5 +34,23 @@ func main() {
 	c.RegisterGroupHandle(todaywaifu.TodayWaifu())
 	c.RegisterGroupHandle(Like.Sedlike())
 
+	c.RegisterPush(Athmmt())
+
 	c.Run()
+}
+
+func Athmmt() client.Push {
+	return func(client client.Client) {
+		c := cron.New()
+		_, err := c.AddFunc("*/10 * * * *", func() {
+			client.Sendat(273421673)
+			client.AddText("宝宝来和写挂QAQ")
+			client.SendGroupMsg(853963912)
+		})
+		if err != nil {
+			fmt.Println(err)
+		}
+		c.Start()
+		select {}
+	}
 }

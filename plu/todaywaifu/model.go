@@ -70,6 +70,43 @@ func (w *waifu) addwaf(message client.Message) (client.GroupMemberListData, erro
 	}
 	return w.Groupmap[message.GroupId].Groupuser[message.UserId], nil
 }
+func (w *waifu) dellwaf(message client.Message) (client.GroupMemberListData, error) {
+	if _, ok := w.Groupmap[message.GroupId].Groupuser[message.UserId]; ok {
+		l := w.Groupmap[message.GroupId].Groupuser[message.UserId]
+		delete(w.Groupmap[message.GroupId].Groupuser, message.UserId)
+		w.addlist(message.GroupId, l)
+		return w.Groupmap[message.GroupId].Groupuser[message.UserId], nil
+	}
+	return w.Groupmap[message.GroupId].Groupuser[message.UserId], errors.New("醒醒你是单身狗")
+}
+func (w *waifu) addlist(GroupId int64, l client.GroupMemberListData) {
+	g := w.Groupmap[GroupId]
+	g.Groupuserlist = append(g.Groupuserlist, l)
+	w.Groupmap[GroupId] = g
+}
+
+func (w *waifu) sudoaddwaf(message client.Message, userid int64) (client.GroupMemberListData, error) {
+	if _, ok := w.Groupmap[message.GroupId].Groupuser[message.UserId]; ok {
+		return client.GroupMemberListData{}, errors.New("你特喵有老婆了，你犯法了")
+	}
+	err := errors.New("")
+	for k, v := range w.Groupmap[message.GroupId].Groupuser {
+		if v.UserId == userid && k != message.UserId {
+			delete(w.Groupmap[message.GroupId].Groupuser, k)
+			err = errors.New("有牛头人")
+			break
+		}
+	}
+	for k, v := range w.Groupmap[message.GroupId].Groupuserlist {
+		if v.UserId == userid {
+			fmt.Println(v)
+			w.Groupmap[message.GroupId].Groupuser[message.UserId] = v
+			w.dellist(message.GroupId, k)
+			return v, err
+		}
+	}
+	return client.GroupMemberListData{}, errors.New("未知错误")
+}
 func (w *waifu) dellist(GroupId int64, i int) {
 	g := w.Groupmap[GroupId]
 	g.Groupuserlist = append(g.Groupuserlist[:i], g.Groupuserlist[i+1:]...)
