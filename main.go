@@ -6,6 +6,7 @@ import (
 	"botsdkte/plu/love"
 	"botsdkte/plu/mufei"
 	"botsdkte/plu/pet"
+	"botsdkte/plu/pix"
 	"botsdkte/plu/todaywaifu"
 	"fmt"
 	"github.com/robfig/cron/v3"
@@ -33,7 +34,7 @@ func main() {
 
 	c.RegisterGroupHandle(pet.Pethand())
 	c.RegisterGroupHandle(pet.Getcom())
-	//c.RegisterGroupHandle(pix.Getpiximg()) 还没设置代理
+	c.RegisterGroupHandle(pix.Getpiximg())
 	c.RegisterGroupHandle(todaywaifu.TodayWaifu())
 	c.RegisterGroupHandle(Like.Sedlike())
 	c.RegisterGroupHandle(love.Saylove())
