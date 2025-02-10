@@ -3,6 +3,8 @@ package main
 import (
 	botconfig "botsdkte/config"
 	"botsdkte/plu/Like"
+	"botsdkte/plu/love"
+	"botsdkte/plu/mufei"
 	"botsdkte/plu/pet"
 	"botsdkte/plu/todaywaifu"
 	"fmt"
@@ -11,6 +13,7 @@ import (
 )
 
 func main() {
+
 	fmt.Print("正式环境")
 	err := botconfig.Read()
 	if err != nil {
@@ -33,8 +36,10 @@ func main() {
 	//c.RegisterGroupHandle(pix.Getpiximg()) 还没设置代理
 	c.RegisterGroupHandle(todaywaifu.TodayWaifu())
 	c.RegisterGroupHandle(Like.Sedlike())
-
-	c.RegisterPush(Athmmt())
+	c.RegisterGroupHandle(love.Saylove())
+	c.RegisterGroupHandle(mufei.MufeiG())
+	c.RegisterPrivateHandle(mufei.Mufeip())
+	//c.RegisterPush(Athmmt())
 
 	c.Run()
 }

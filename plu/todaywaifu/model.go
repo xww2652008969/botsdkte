@@ -8,11 +8,13 @@ import (
 	"github.com/xww2652008969/wbot/client/utils"
 	"math/rand"
 	"path/filepath"
+	"sync"
 	"time"
 )
 
 type waifu struct {
 	Groupmap map[int64]group `json:"groupmap"`
+	mu       sync.Mutex
 }
 type group struct {
 	T             time.Time                            `json:"t"`
@@ -91,18 +93,19 @@ func (w *waifu) sudoaddwaf(message client.Message, userid int64) (client.GroupMe
 	}
 	err := errors.New("")
 	for k, v := range w.Groupmap[message.GroupId].Groupuser {
-		if v.UserId == userid && k != message.UserId {
+		if v.UserId == userid {
 			delete(w.Groupmap[message.GroupId].Groupuser, k)
+			w.addlist(message.GroupId, v)
 			err = errors.New("有牛头人")
 			break
 		}
 	}
-	for k, v := range w.Groupmap[message.GroupId].Groupuserlist {
-		if v.UserId == userid {
-			fmt.Println(v)
-			w.Groupmap[message.GroupId].Groupuser[message.UserId] = v
-			w.dellist(message.GroupId, k)
-			return v, err
+	for k1, v2 := range w.Groupmap[message.GroupId].Groupuserlist {
+		if v2.UserId == userid {
+			fmt.Println(v2)
+			w.Groupmap[message.GroupId].Groupuser[message.UserId] = v2
+			w.dellist(message.GroupId, k1)
+			return v2, err
 		}
 	}
 	return client.GroupMemberListData{}, errors.New("未知错误")

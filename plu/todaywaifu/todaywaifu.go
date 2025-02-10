@@ -23,6 +23,8 @@ func init() {
 }
 func TodayWaifu() client.Event {
 	return func(c client.Client, message client.Message) {
+		groupdata.mu.Lock()
+		defer groupdata.mu.Unlock()
 		groupdata.initdata(c, message).save() //有群聊就初始化
 		groupdata.updatedata(c, message).save()
 		if message.RawMessage == "今日老婆" {
@@ -33,7 +35,7 @@ func TodayWaifu() client.Event {
 				return
 			}
 			c.Addreply(message.MessageId)
-			c.AddImage(fmt.Sprintf("http://q.qlogo.cn/headimg_dl?dst_uin=%d&spec=640&img_type=jpg", dat.UserId))
+			c.AddImage(fmt.Sprintf("https://q.qlogo.cn/g?b=qq&nk=%d&s=640", dat.UserId))
 			if dat.Card != "" {
 				c.AddText("你的今日老婆是  " + dat.Card)
 			} else {
@@ -87,12 +89,14 @@ func TodayWaifu() client.Event {
 			c.Addreply(message.MessageId)
 			useid, _ := strconv.ParseInt(message.Message[1].Data.Qq, 10, 64)
 			dat, err := groupdata.sudoaddwaf(message, useid)
-			if err != nil && err.Error() == "你特喵有老婆了，你犯法了" {
+			if err.Error() == "你特喵有老婆了，你犯法了" {
 				c.AddText(err.Error())
 				c.SendGroupMsg(message.GroupId)
 				return
 			}
-			c.AddImage(fmt.Sprintf("http://q.qlogo.cn/headimg_dl?dst_uin=%d&spec=640&img_type=jpg", dat.UserId))
+
+			fmt.Println(dat, err)
+			c.AddImage(fmt.Sprintf("https://q.qlogo.cn/g?b=qq&nk=%d&s=640", dat.UserId))
 			if dat.Card != "" {
 				c.AddText("你的今日老婆是  " + dat.Card)
 			} else {
