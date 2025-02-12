@@ -102,7 +102,6 @@ func (w *waifu) sudoaddwaf(message client.Message, userid int64) (client.GroupMe
 	}
 	for k1, v2 := range w.Groupmap[message.GroupId].Groupuserlist {
 		if v2.UserId == userid {
-			fmt.Println(v2)
 			w.Groupmap[message.GroupId].Groupuser[message.UserId] = v2
 			w.dellist(message.GroupId, k1)
 			return v2, err
@@ -123,12 +122,7 @@ func (w *waifu) read() *waifu {
 	}
 	return w
 }
-func (w *waifu) save() *waifu { //保存数据
-	da, err := json.Marshal(w)
-	fmt.Println(err)
-	utils.Writefile(filepath.Join(path, "data.json"), da)
-	return w
-}
+
 func randint(min int, max int) int {
 	if max == 0 {
 		return 1

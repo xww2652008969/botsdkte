@@ -3,8 +3,6 @@ package todaywaifu
 import (
 	"fmt"
 	"github.com/xww2652008969/wbot/client"
-	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 )
@@ -16,22 +14,15 @@ func init() {
 	groupdata = waifu{
 		Groupmap: map[int64]group{},
 	}
-	path, _ = os.Getwd()
-	path = filepath.Join(path, "waidata")
-	os.MkdirAll(path, 0775)
-	groupdata.read()
 }
 func TodayWaifu() client.Event {
 	return func(c client.Client, message client.Message) {
-		groupdata.mu.Lock()
-		defer groupdata.mu.Unlock()
-		groupdata.initdata(c, message).save() //有群聊就初始化
-		groupdata.updatedata(c, message).save()
+		groupdata.initdata(c, message)
+		groupdata.updatedata(c, message)
 		if message.RawMessage == "今日老婆" {
 			dat, err := groupdata.addwaf(message)
 			if err != nil {
 				c.AddText(err.Error()).SendGroupMsg(message.GroupId)
-				groupdata.save()
 				return
 			}
 			c.Addreply(message.MessageId)
@@ -42,7 +33,6 @@ func TodayWaifu() client.Event {
 				c.AddText("你的今日老婆是  " + dat.Nickname)
 			}
 			c.SendGroupMsg(message.GroupId)
-			groupdata.save()
 		}
 		if message.RawMessage == "离婚" {
 			c.Addreply(message.MessageId)
@@ -75,7 +65,6 @@ func TodayWaifu() client.Event {
 				c.AddText("你的今日老婆是  " + dat.Nickname)
 			}
 			c.SendGroupMsg(message.GroupId)
-			groupdata.save()
 			return
 		}
 		if message.Message[0].Type != "text" {
@@ -106,8 +95,6 @@ func TodayWaifu() client.Event {
 				c.AddText("\n你这个牛头人")
 			}
 			c.SendGroupMsg(message.GroupId)
-			groupdata.save()
 		}
-		groupdata.save()
 	}
 }

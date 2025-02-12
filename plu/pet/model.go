@@ -27,6 +27,6 @@ type reqstruct struct {
 		To   string `json:"to"`
 	} `json:"image"`
 	Text struct {
-		To string `json:"to"`
+		Raw string `json:"raw"`
 	} `json:"text"`
 }

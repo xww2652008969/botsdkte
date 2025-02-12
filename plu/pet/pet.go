@@ -61,9 +61,10 @@ func Pethand() qqbot.Event {
 			return
 		}
 		com[0].Data.Text = strings.ReplaceAll(com[0].Data.Text, "\n", "")
-		if _, ok := keyword[com[0].Data.Text]; ok {
+		c := strings.Split(com[0].Data.Text, " ")
+		if _, ok := keyword[c[0]]; ok {
 			var urlpath []string
-			for _, v := range keyword[com[0].Data.Text] {
+			for _, v := range keyword[c[0]] {
 				pa, err := buildreq(v, message)
 				if err != nil {
 					fmt.Println(err)
@@ -112,8 +113,17 @@ func buildreq(id string, message qqbot.Message) (string, error) {
 		}
 		petreq.Image.To = petreq.Image.From
 	}
-	petreq.Text.To = "te"
-	fmt.Println(petreq)
+	c := message.RawMessage
+	d := strings.Split(c, " ")
+	if len(d) == 0 {
+		petreq.Text.Raw = "te"
+	}
+	if len(d) == 1 {
+		petreq.Text.Raw = d[0]
+	}
+	if len(d) == 2 {
+		petreq.Text.Raw = d[1]
+	}
 	jsondata, _ := json.Marshal(petreq)
 	hettpreq, _ := http.NewRequest("POST", baseurl+"/generate", bytes.NewBuffer(jsondata))
 	res, err := client.Do(hettpreq)
@@ -145,7 +155,7 @@ func buildre(id string, message qqbot.Message, m qqbot.MsgInfo) (string, error) 
 		}
 		petreq.Image.To = petreq.Image.From
 	}
-	petreq.Text.To = "te"
+	petreq.Text.Raw = "te"
 	fmt.Println(petreq)
 	jsondata, _ := json.Marshal(petreq)
 	hettpreq, _ := http.NewRequest("POST", baseurl+"/generate", bytes.NewBuffer(jsondata))
