@@ -3,6 +3,7 @@ package hmmt
 import "time"
 
 type T struct {
+	UserId   string     `json:"user_id"`
 	GroupId  string     `json:"group_id"`
 	Messages []Messages `json:"messages"`
 	Prompt   string     `json:"prompt"`

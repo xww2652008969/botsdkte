@@ -2,10 +2,12 @@ package main
 
 import (
 	botconfig "botsdkte/config"
-	"botsdkte/plu/hmmt"
+	"botsdkte/plu/ff14logs"
 	"fmt"
 	"github.com/xww2652008969/wbot/client"
 )
+
+var idchan chan int64
 
 func main() {
 	fmt.Print("正式环境")
@@ -24,28 +26,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
-	//c.RegisterGroupHandle(pet.Pethand())
-	//c.RegisterGroupHandle(pet.Getcom())
-	//c.RegisterGroupHandle(todaywaifu.TodayWaifu())
-	//c.RegisterGroupHandle(love.Saylove())
-	//c.RegisterGroupHandle(lalfei.Lalafei())
-	c.RegisterGroupHandle(hmmt.SeSe())
+	c.RegisterGroupHandle(ff14logs.FF14log())
 	c.Run()
+	////c.RegisterGroupHandle(pet.Pethand())
+	////c.RegisterGroupHandle(pet.Getcom())
+	////c.RegisterGroupHandle(todaywaifu.TodayWaifu())
+	////c.RegisterGroupHandle(love.Saylove())
+	////c.RegisterGroupHandle(lalfei.Lalafei())
+	//c.RegisterGroupHandle(ff14logs.FF14log())
 }
-
-//func Athmmt() client.Push {
-//	return func(client client.Client) {
-//		c := cron.New()
-//		_, err := c.AddFunc("*/10 * * * *", func() {
-//			client.Sendat(273421673)
-//			client.AddText("宝宝来和写挂QAQ")
-//			client.SendGroupMsg(853963912)
-//		})
-//		if err != nil {
-//			fmt.Println(err)
-//		}
-//		c.Start()
-//		select {}
-//	}
-//}

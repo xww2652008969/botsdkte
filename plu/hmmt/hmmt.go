@@ -12,7 +12,6 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strconv"
 	"time"
 )
@@ -24,6 +23,9 @@ var httpclient *http.Client
 var lastPage map[string]int
 var exclude []string
 
+var jiangchi []int
+var jiangping int
+
 func init() {
 	exclude = []string{"NovelAI", "ProjectSekai", "fuury", "AIイラスト", "AI生成"}
 	path, _ = os.Getwd()
@@ -34,19 +36,32 @@ func init() {
 		Proxy: http.ProxyURL(proxyURL),
 	}
 	httpclient = &http.Client{Transport: httpTransport}
+	jiangchi = make([]int, 0)
+	jiangping = 0
+	initjiangchi()
 }
+
+func initjiangchi() {
+	for k := range 100 {
+		jiangchi = append(jiangchi, k)
+	}
+	jiangping = Randint(0, 99)
+}
+
 func SeSe() client.Event {
 	return func(client client.Client, message client.Message) {
-		re := regexp.MustCompile("(?i)hmmt")
-		if !re.MatchString(message.RawMessage) {
+		i := Randint(0, len(jiangchi)-1)
+		if jiangchi[i] != jiangping {
+			jiangchi = append(jiangchi[:i], jiangchi[i+1:]...)
 			return
 		}
+		initjiangchi()
 		var t T
 		t.GroupId = strconv.FormatInt(message.GroupId, 10)
 		t.Source = "HMMT发福利"
 		t.Prompt = "HMMT发福利"
 		t.Summary = "HMMT发福利"
-		da, err := sr18("少女", true, Randint(0, 1000))
+		da, err := sr18("女孩子", true, Randint(0, 1000))
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -65,16 +80,34 @@ func SeSe() client.Event {
 		}
 		var m Messages
 		m.Type = "node"
+		m.Data.UserId = int(message.SelfId)
+		m.Data.Nickname = "电子xww"
+		var c Contents
+		c.Type = "text"
+		c.Data.Text = "我要福利"
+		m.Data.Content = c
+		t.Messages = append(t.Messages, m)
 		m.Data.UserId = 273421673
 		m.Data.Nickname = "武术有栖"
-		var c Contents
 		c.Type = "image"
 		c.Data.File = s
 		m.Data.Content = c
 		t.Messages = append(t.Messages, m)
 		databyte, _ := json.Marshal(t)
+		client.Addreply(message.MessageId)
+		client.AddText("你中奖了发福利嘻嘻，10s")
+		client.SendGroupMsg(message.GroupId)
 		client.SendForwardMsg(databyte)
+		initjiangchi()
 		return
+	}
+}
+func DelSe() client.Event {
+	return func(client client.Client, message client.Message) {
+		if message.Message[0].Type == "json" {
+			time.Sleep(10 * time.Second)
+			client.DeleMsg(message.MessageId)
+		}
 	}
 }
 func sr18(key string, r bool, p int) (Search, error) {
